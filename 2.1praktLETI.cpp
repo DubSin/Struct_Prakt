@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
+#include <conio.h>
 using namespace std;
 
 struct Student {
@@ -12,8 +13,32 @@ struct Student {
     int numberGroup;
     int id;
     int evaluations[8];
+    char forener;
+    int income;
+    char social_scholarship;
     float average;
+    int func(){
+        return this -> id;
+    }
+    
+
 };
+
+struct Node {
+    int data;
+    Node* next;
+};
+
+void create() {
+    Node* arr = new Node[5];
+    Node* p;
+    for (p = arr; p < arr+5; p++) {
+        p->next = p + 1;
+        cout << p << endl;
+    }
+    p->next = nullptr;
+
+}
 
 vector<Student> students;
 const int evaluationsCount = 8;
@@ -30,6 +55,7 @@ vector<Student> loadStudents() {
                 file >> student.evaluations[i];
             }
             file >> student.average;
+            file >> student.forener >> student.income >> student.social_scholarship;
             students.push_back(student);
         }
         file.close();
@@ -45,14 +71,16 @@ void saveStudents(const vector<Student>& students) {
             for (int i = 0; i < evaluationsCount; i++) {
                 file << student.evaluations[i] << " ";
             }
-            file << student.average << endl;
+            file << student.average  << " ";
+            file << student.forener << " " << student.income << " " << student.social_scholarship << endl;
         }
         file.close();
     }
 }
 
 
-bool isUnique(const vector<Student>& students, int numberGroup, int id) {
+bool isUnique(int numberGroup, int id) {
+    auto students = loadStudents();
     for (const auto& student : students) {
         if (student.numberGroup == numberGroup && student.id == id) {
             return false;
@@ -65,14 +93,12 @@ bool isUnique(const vector<Student>& students, int numberGroup, int id) {
 void addStudents() {
     Student student;
     float average = 0;
-    int count;
     auto existingStudents = loadStudents();
 
     cout << "Введите имя студента: ";
     cin.ignore();
     getline(cin, student.name);
     cout << "Введите фамилию студента: ";
-    cin.ignore();
     getline(cin, student.surname);
 
     cout << "Введите пол студента(M/F): ";
@@ -84,47 +110,39 @@ void addStudents() {
 
     cout << "Введите группу студента: ";
     cin >> student.numberGroup;
-    while (student.numberGroup < 1000 && student.numberGroup > 10000) {
+    while (student.numberGroup < 1000 || student.numberGroup > 10000) {
         cout << "Введите существующую группу (от 1000 до 10000): ";
         cin >> student.numberGroup;
     }
 
-    cout << "Введите количество студентов в группе: ";
-    cin >> count;
-    while (count > 50 && count < 1) {
-        cout << "Некорректный ввод. Введите корректное количество студентов (от 1 до 50): ";
-        cin >> count;
-    }
-
     cout << "Введите номер в списке: ";
     cin >> student.id;
-    while (student.id > count && student.id < 1) {
-        cout << "Некорректный ввод. Введите корректный номер в списке (от 1 до " << count << "): ";
+    while (student.id < 1) {
+        cout << "Некорректный ввод. Введите корректный номер в списке: ";
         cin >> student.id;
     }
 
-    while (!isUnique(existingStudents, student.numberGroup, student.id)) {
+    while (!isUnique(student.numberGroup, student.id)) {
         cout << "Студент с такой группой и номером в списке уже существует. Введите другие данные." << endl;
 
         cout << "Введите группу студента: ";
         cin >> student.numberGroup;
-        while (student.numberGroup < 1000 && student.numberGroup > 10000) {
+        while (student.numberGroup < 1000 || student.numberGroup > 10000) {
             cout << "Введите существующую группу (от 1000 до 10000): ";
             cin >> student.numberGroup;
         }
 
         cout << "Введите номер в списке: ";
         cin >> student.id;
-        while (student.id > count && student.id < 1) {
-            cout << "Некорректный ввод. Введите корректный номер в списке (от 1 до " << count << "): ";
+        while (student.id < 1) {
+            cout << "Некорректный ввод. Введите корректный номер в списке: ";
             cin >> student.id;
         }
     }
-
     cout << "Введите оценки студента: " << endl;
     for (int i = 0; i < evaluationsCount; i++) {
         cin >> student.evaluations[i];
-        if (student.evaluations[i] < 3 && student.evaluations[i] > 5) {
+        if (student.evaluations[i] < 3 || student.evaluations[i] > 5) {
             cout << "Введите существующую оценку (от 3 до 5)!: ";
             i--;
         }
@@ -132,8 +150,26 @@ void addStudents() {
             average += student.evaluations[i];
         }
     }
-	student.average = average / evaluationsCount;
+    student.average = average / evaluationsCount;
     cout << "Средний балл: " << student.average << endl;
+    cout << "Студент иногородний(y/n): ";
+    cin >> student.forener;
+    while (student.forener != 'y' && student.forener != 'n') {
+        cout << "Некорректный ввод. Введите только y или n: ";
+        cin >> student.forener;
+    }
+    cout << "Введите доход семьи(в месяц): ";
+    cin >> student.income;
+    while (student.income < 0) {
+        cout << "Введите существующую cумму: ";
+        cin >> student.income;
+    }
+    cout << "Студент получает соц стипендию(y/n): ";
+    cin >> student.social_scholarship;
+    while (student.social_scholarship != 'y' && student.social_scholarship != 'n') {
+        cout << "Некорректный ввод. Введите только y или n: ";
+        cin >> student.social_scholarship;
+    }
     existingStudents.push_back(student);
     saveStudents(existingStudents);
     cout << "Студент добавлен" << endl;
@@ -141,10 +177,10 @@ void addStudents() {
 
 void makingChanges() {
     int id, group;
-    cout << "Введите id студента: ";
-    cin >> id;
     cout << "Введите группу студента: ";
     cin >> group;
+    cout << "Введите id студента: ";
+    cin >> id;  
 
     auto students = loadStudents();
     bool isFound = false;
@@ -154,7 +190,6 @@ void makingChanges() {
             cin.ignore();
             cout << "Введите новое имя студента: ";
             getline(cin, student.name);
-            cin.ignore();
             cout << "Введите новую фамилию студента: ";
             getline(cin, student.surname);
 
@@ -167,7 +202,7 @@ void makingChanges() {
 
             cout << "Введите новый номер группы: ";
             cin >> student.numberGroup;
-            while (student.numberGroup < 1000 && student.numberGroup > 10000) {
+            while (student.numberGroup < 1000 || student.numberGroup > 10000) {
                 cout << "Введите существующую группу (от 1000 до 10000): ";
                 cin >> student.numberGroup;
             }
@@ -178,20 +213,20 @@ void makingChanges() {
                 cout << "Некорректный ввод. Введите корректный номер в списке: ";
                 cin >> student.id;
             }
-            while (!isUnique(students, student.numberGroup, student.id)) {
+            while (!isUnique(student.numberGroup, student.id)) {
                 cout << "Студент с такой группой и номером в списке уже существует. Введите другие данные." << endl;
 
                 cout << "Введите группу студента: ";
                 cin >> student.numberGroup;
-                while (student.numberGroup < 1000 && student.numberGroup > 10000) {
+                while (student.numberGroup < 1000 || student.numberGroup > 10000) {
                     cout << "Введите существующую группу (от 1000 до 10000): ";
                     cin >> student.numberGroup;
                 }
 
                 cout << "Введите номер в списке: ";
                 cin >> student.id;
-                while (student.id > 50 && student.id < 1) {
-                    cout << "Некорректный ввод. Введите корректный номер в списке (от 1 до 50 ): ";
+                while (student.id < 1) {
+                    cout << "Некорректный ввод. Введите корректный номер в списке: ";
                     cin >> student.id;
                 }
             }
@@ -199,13 +234,31 @@ void makingChanges() {
             float average = 0;
             for (int i = 0; i < evaluationsCount; i++) {
                 cin >> student.evaluations[i];
-                if (student.evaluations[i] < 3 && student.evaluations[i] > 5) {
+                if (student.evaluations[i] < 3 || student.evaluations[i] > 5) {
                     cout << "Введите существующую оценку (от 3 до 5)!: ";
                     i--;
                 }
                 else {
                     average += student.evaluations[i];
                 }
+            }
+            cout << "Студент иногородний(y/n): ";
+            cin >> student.forener;
+            while (student.forener != 'y' && student.forener != 'n') {
+                cout << "Некорректный ввод. Введите только y или n: ";
+                cin >> student.forener;
+            }
+            cout << "Введите доход семьи(в месяц): ";
+            cin >> student.income;
+            while (student.income < 0) {
+                cout << "Введите существующую cумму: ";
+                cin >> student.income;
+            }
+            cout << "Студент получает соц стипендию(y/n): ";
+            cin >> student.social_scholarship;
+            while (student.social_scholarship != 'y' && student.social_scholarship != 'n') {
+                cout << "Некорректный ввод. Введите только y или n: ";
+                cin >> student.social_scholarship;
             }
             student.average = average / evaluationsCount;
 
@@ -235,6 +288,7 @@ void displayAllStudents() {
 
 void displayAllStudentsInGroup() {
     int group;
+    int count = 0;
     cout << "Введите номер группы: ";
     cin >> group;
 
@@ -243,7 +297,11 @@ void displayAllStudentsInGroup() {
         if (student.numberGroup == group) {
             cout << "Номер в списке: " << student.id << ", Имя: " << student.name << ", Фамилия: " << student.surname
                 << ", Пол: " << student.sex << ", Средний балл: " << student.average << endl;
+            count++;
         }
+    }
+    if (count == 0) {
+        cout << "В этой группе нет студентов или ее не существует";
     }
 }
 
@@ -335,29 +393,58 @@ void numberGroup() {
             cout << "Имя: " << student.name << ", Фамилия: " << student.surname << ", Пол: " << student.sex
                 << ", Группа: " << student.numberGroup
                 << ", Средний балл: " << student.average << endl;
-            return;
         }
     }
-    cout << "Студент с таким номером не найден." << endl;
+}
+
+void idz() {
+    int inc;
+    auto students = loadStudents();
+    cout << "Введите максимальный доход для получения стипендии: ";
+    cin >> inc;
+    cout << "Студенты с доходом меньше " << inc << endl;
+    for (const auto& student : students) {
+        if (student.income <= inc) {
+            cout << "Имя: " << student.name << ", Фамилия: " << student.surname << ", Пол: " << student.sex
+                << ", Группа: " << student.numberGroup
+                << ", Средний балл: " << student.average  << ", Иногородний: " << student.forener
+                << ", Доход в месяц: " << student.income << ", Получает соц стипендию: " << student.social_scholarship << endl;
+        }
+    }
+    cout << "Студенты, которые обязаны получить мат помощь: " << endl;
+    int count = 10;
+    sort(students.begin(), students.end(), [](const Student& a, const Student& b) {
+        return a.income < b.income;
+        });
+    for (const auto& student : students) {
+        if (student.forener == 'n' && student.social_scholarship == 'y' && count-- >= 0) {
+            cout << "Имя: " << student.name << ", Фамилия: " << student.surname << ", Пол: " << student.sex
+                << ", Группа: " << student.numberGroup
+                << ", Средний балл: " << student.average << ", Иногородний: " << student.forener
+                << ", Доход в месяц: " << student.income << ", Получает соц стипендию: " << student.social_scholarship << endl;;
+        }
+    }
+
 }
 
 int main() {
-    setlocale(LC_ALL, "RU");
+    setlocale(LC_ALL, "RU"); 
     int choice;
     do {
+        system("cls");
         cout << "1. Добавить студента\n2. Изменить студента\n3. Вывести всех студентов\n"
             << "4. Вывести студентов группы\n5. Топ студентов\n6. Количество студентов по полу\n"
-            << "7. Информация о стипендиях\n8. Найти студента по номеру в списке\n9. Удалить файл\n0. Выход\n";
+            << "7. Информация о стипендиях\n8. Найти студента по номеру в списке\n9. Удалить файл\n10.ИДЗ(6 вар)\n52.Create\n0. Выход\n";
         cin >> choice;
         switch (choice) {
-        case 1: addStudents(); break;
-        case 2: makingChanges(); break;
-        case 3: displayAllStudents(); break;
-        case 4: displayAllStudentsInGroup(); break;
-        case 5: displayTopStudents(); break;
-        case 6: countSex(); break;
-        case 7: scholarship(); break;
-        case 8: numberGroup(); break;
+        case 1: addStudents(); _getch(); break;
+        case 2: makingChanges(); _getch(); break;
+        case 3: displayAllStudents(); _getch(); break;
+        case 4: displayAllStudentsInGroup(); _getch(); break;
+        case 5: displayTopStudents(); _getch(); break;
+        case 6: countSex();  _getch();  break;
+        case 7: scholarship(); _getch(); break;
+        case 8: numberGroup(); _getch(); break;
         case 9:
             if (remove(fileName.c_str())) {
                 cout << "Ошибка: не удалось удалить файл " << fileName << endl;
@@ -366,6 +453,8 @@ int main() {
                 cout << "Файл успешно удален" << endl;
             };
             break;
+        case 10: idz(); _getch(); break;
+        case 52: create(); _getch(); break;
         case 0: break;
         default: cout << "Неверный выбор." << endl;
         }
