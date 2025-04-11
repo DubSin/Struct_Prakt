@@ -17,28 +17,8 @@ struct Student {
     int income;
     char social_scholarship;
     float average;
-    int func(){
-        return this -> id;
-    }
-    
-
 };
 
-struct Node {
-    int data;
-    Node* next;
-};
-
-void create() {
-    Node* arr = new Node[5];
-    Node* p;
-    for (p = arr; p < arr+5; p++) {
-        p->next = p + 1;
-        cout << p << endl;
-    }
-    p->next = nullptr;
-
-}
 
 vector<Student> students;
 const int evaluationsCount = 8;
@@ -434,7 +414,7 @@ int main() {
         system("cls");
         cout << "1. Добавить студента\n2. Изменить студента\n3. Вывести всех студентов\n"
             << "4. Вывести студентов группы\n5. Топ студентов\n6. Количество студентов по полу\n"
-            << "7. Информация о стипендиях\n8. Найти студента по номеру в списке\n9. Удалить файл\n10.ИДЗ(6 вар)\n52.Create\n0. Выход\n";
+            << "7. Информация о стипендиях\n8. Найти студента по номеру в списке\n9. Удалить файл\n10.ИДЗ(6 вар)\n0. Выход\n";
         cin >> choice;
         switch (choice) {
         case 1: addStudents(); _getch(); break;
@@ -454,7 +434,6 @@ int main() {
             };
             break;
         case 10: idz(); _getch(); break;
-        case 52: create(); _getch(); break;
         case 0: break;
         default: cout << "Неверный выбор." << endl;
         }
